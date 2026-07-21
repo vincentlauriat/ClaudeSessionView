@@ -1,0 +1,19 @@
+# Docs de suivi (non versionnées, cf. CLAUDE.md)
+COMMANDS.md
+MEMORY.md
+CHANGES.md
+TODOS.md
+PLAN.md
+
+# Xcode / XcodeGen
+*.xcodeproj
+xcuserdata/
+DerivedData/
+.build/
+build/
+*.dSYM
+
+.DS_Store
+
+# État d'orchestration local (oh-my-claudecode)
+.omc/
