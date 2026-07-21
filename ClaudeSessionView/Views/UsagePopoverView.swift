@@ -14,7 +14,8 @@ struct UsagePopoverView: View {
 
             if let errorState = viewModel.errorState {
                 Divider()
-                Text(errorMessage(errorState))
+                let hasKnownValues = viewModel.fiveHourPercent != nil || viewModel.weeklyPercent != nil
+                Text(errorMessage(errorState, hasKnownValues: hasKnownValues))
                     .font(.caption)
                     .foregroundStyle(.orange)
             }
@@ -54,7 +55,7 @@ struct UsagePopoverView: View {
                 Text("\(Int(percent.rounded()))% consommé")
                     .font(.title3)
                     .fontWeight(.bold)
-                ProgressView(value: percent / 100)
+                ProgressView(value: min(max(percent, 0), 100) / 100)
                 if let resetsAt {
                     Text("Reset dans \(formatDuration(resetsAt.timeIntervalSinceNow)) (\(resetsAt.formatted(date: .omitted, time: .shortened)))")
                         .font(.caption)
@@ -68,16 +69,16 @@ struct UsagePopoverView: View {
         }
     }
 
-    private func errorMessage(_ error: UsageFetchError) -> String {
+    private func errorMessage(_ error: UsageFetchError, hasKnownValues: Bool) -> String {
         switch error {
         case .noCredentials:
             return "Identifiants Claude Code introuvables dans le Keychain."
         case .expiredCredentials:
             return "Session expirée — exécute `claude` une fois pour te reconnecter."
         case .rateLimited:
-            return "Limité temporairement par l'API — dernières valeurs connues affichées."
+            return hasKnownValues ? "Limité temporairement par l'API — dernières valeurs connues affichées." : "Limité temporairement par l'API."
         case .network:
-            return "Erreur réseau — dernières valeurs connues affichées."
+            return hasKnownValues ? "Erreur réseau — dernières valeurs connues affichées." : "Erreur réseau."
         case .decodingFailed:
             return "Réponse inattendue de l'API."
         }

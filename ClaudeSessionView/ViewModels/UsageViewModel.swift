@@ -19,14 +19,6 @@ final class UsageViewModel {
 
     init() {
         refresh()
-        startTimer()
-    }
-
-    func startTimer() {
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: Self.pollIntervalSeconds, repeats: true) { [weak self] _ in
-            self?.refresh()
-        }
     }
 
     func refresh() {
@@ -52,19 +44,18 @@ final class UsageViewModel {
                     self.errorState = error
                     if error == .rateLimited {
                         self.currentBackoff = min(self.currentBackoff * 2, Self.maxBackoffSeconds)
-                        self.scheduleBackoffRetry()
                     }
                     // On garde les dernières valeurs connues affichées, pas de reset à nil.
                 }
+                self.scheduleNext()
             }
         }
     }
 
-    private func scheduleBackoffRetry() {
+    private func scheduleNext() {
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: currentBackoff, repeats: false) { [weak self] _ in
             self?.refresh()
-            self?.startTimer()
         }
     }
 }
