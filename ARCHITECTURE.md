@@ -28,7 +28,7 @@ Keychain macOS ("Claude Code-credentials")
 | `Services/KeychainCredentials.swift` | Lecture du token OAuth stocké par Claude Code dans le Keychain macOS |
 | `Services/UsageAPIClient.swift` | Appel HTTPS authentifié vers l'API réelle Anthropic + décodage JSON (`RateLimitUsage`, `RateLimitWindow`, `UsageFetchError`) |
 | `ViewModels/UsageViewModel.swift` | État observable, timer de refresh (5 min), backoff exponentiel sur rate-limit (429) |
-| `Views/UsagePopoverView.swift` | UI détail : % réels, barres de progression, countdowns de reset, message d'erreur si applicable |
+| `Views/UsagePopoverView.swift` | UI détail (Liquid Glass) : cartes en verre par fenêtre, % réels colorés par sévérité, countdowns de reset, message d'erreur si applicable |
 
 ## L'endpoint réel
 
@@ -41,7 +41,7 @@ Keychain macOS ("Claude Code-credentials")
 }
 ```
 
-Point d'attention : `resets_at` a une précision sous-seconde variable (6 chiffres fractionnaires observés) qu'`ISO8601DateFormatter` ne parse pas de façon fiable avec `.withFractionalSeconds`. La partie fractionnaire est retirée par regex avant parsing — la précision sous-seconde n'a aucune utilité pour un countdown de reset.
+Point d'attention : `resets_at` a une précision sous-seconde variable (6 chiffres fractionnaires observés). Le parsing essaie d'abord `ISO8601DateFormatter` avec `.withFractionalSeconds` ; si ça échoue, un repli retire la partie fractionnaire par une regex ciblée sur `hh:mm:ss.xxxxxx` (pas un remplacement aveugle sur toute la chaîne) avant de reparser — la précision sous-seconde n'a de toute façon aucune utilité pour un countdown de reset.
 
 Le champ `is_active` (par entrée du tableau `limits`) n'est volontairement **pas** utilisé pour masquer l'affichage : le % renvoyé par l'API est toujours affiché tel quel.
 
@@ -56,9 +56,16 @@ Le champ `is_active` (par entrée du tableau `limits`) n'est volontairement **pa
 - Dépend du token OAuth stocké par Claude Code dans le Keychain — si Claude Code n'a jamais été lancé sur cette machine, ou si le token a expiré sans qu'aucune commande `claude` récente ne l'ait rafraîchi, l'app affiche un message d'erreur explicite plutôt que de deviner une valeur.
 - Pas de refresh OAuth automatique : dépend de Claude Code pour rafraîchir le Keychain lors d'un usage normal.
 - Polling limité à toutes les 5 minutes avec backoff exponentiel sur 429, pour éviter de se faire rate-limiter par l'API elle-même.
+- `KeychainCredentials.read()` reste basé sur le subprocess `/usr/bin/security` plutôt que l'API native `SecItemCopyMatching` : testé et abandonné (voir UX ci-dessous), le natif bloque indéfiniment depuis un binaire de dev non signé sur cet item Keychain précis.
+
+## UX Liquid Glass (macOS 26+)
+
+`UsagePopoverView` utilise le design Liquid Glass (WWDC 2025) : chaque fenêtre (5h, 7j) est une carte `.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))`, les deux regroupées dans un `GlassEffectContainer` — requis dès que plusieurs éléments de verre sont visuellement proches ("le verre ne peut pas échantillonner du verre", sinon rendu incohérent entre les cartes). Boutons en `.buttonStyle(.glassProminent)` (Rafraîchir) / `.buttonStyle(.glass)` (Quitter). Couleur de sévérité (vert < 50 %, orange 50-80 %, rouge > 80 %) sur le % et la barre de progression de chaque carte.
+
+`glassBackgroundEffect` n'est volontairement pas utilisé pour le fond du panneau : sa documentation trouvée est orientée visionOS (plans, volumes, ornements), périmètre macOS ambigu. Le chrome système de `MenuBarExtra(.window)` applique déjà Liquid Glass automatiquement sur macOS 26+.
 
 ## Stack & distribution
 
-- SwiftUI `MenuBarExtra` (macOS 14+ uniquement, pas de cible iOS).
+- SwiftUI `MenuBarExtra` (**macOS 26.0+ uniquement**, relevé depuis 14.0 — obligatoire pour Liquid Glass, ces API n'existent pas avant ; décision assumée sans discussion, app perso mono-machine tournant déjà macOS 27). Pas de cible iOS.
 - XcodeGen (`project.yml`) pour la génération du projet.
 - Pas de App Sandbox : nécessaire pour shell-out vers `/usr/bin/security` et lire un item Keychain créé par une autre application (Claude Code). Distribution Developer ID prévue à terme, cohérent avec le reste du parc d'apps macOS de Vincent.

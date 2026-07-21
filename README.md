@@ -9,11 +9,10 @@ L'app interroge directement l'endpoint officiel `GET https://api.anthropic.com/a
 ## Ce que ça affiche
 
 - **Barre de menu** : % réel de la session 5h en cours.
-- **Popover (clic)** :
-  - Session (5h) : % réel, countdown + heure exacte de reset.
-  - Semaine (7j) : idem.
+- **Popover (clic)**, design Liquid Glass (macOS 26+) :
+  - Session (5h) et Semaine (7j) : deux cartes en verre, % réel coloré selon la sévérité (vert/orange/rouge), countdown + heure exacte de reset.
   - Message d'erreur explicite si les identifiants sont introuvables/expirés ou en cas de rate-limiting (dernières valeurs connues gardées affichées).
-  - Bouton rafraîchir, horodatage de dernière vérification.
+  - Bouton rafraîchir (glass), horodatage de dernière vérification.
 
 ## Limites (assumées, pas des bugs)
 
@@ -31,7 +30,7 @@ open build/Debug/ClaudeSessionView.app   # ou via Xcode directement
 
 ## Stack
 
-SwiftUI `MenuBarExtra`, macOS 14+, XcodeGen. Voir [`ARCHITECTURE.md`](ARCHITECTURE.md).
+SwiftUI `MenuBarExtra`, **macOS 26+** (Liquid Glass), XcodeGen. Voir [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ## Roadmap
 

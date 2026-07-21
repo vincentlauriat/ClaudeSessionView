@@ -28,7 +28,7 @@ macOS Keychain ("Claude Code-credentials")
 | `Services/KeychainCredentials.swift` | Reads the OAuth token Claude Code stores in the macOS Keychain |
 | `Services/UsageAPIClient.swift` | Authenticated HTTPS call to Anthropic's real usage API + JSON decoding (`RateLimitUsage`, `RateLimitWindow`, `UsageFetchError`) |
 | `ViewModels/UsageViewModel.swift` | Observable state, 5-minute refresh timer, exponential backoff on rate-limit (429) |
-| `Views/UsagePopoverView.swift` | Detail UI: real percentages, progress bars, reset countdowns, error message when applicable |
+| `Views/UsagePopoverView.swift` | Detail UI (Liquid Glass): per-window glass cards, severity-colored real percentages, reset countdowns, error message when applicable |
 
 ## The real endpoint
 
@@ -41,7 +41,7 @@ macOS Keychain ("Claude Code-credentials")
 }
 ```
 
-Gotcha: `resets_at` carries variable sub-second precision (6 fractional digits observed) that `ISO8601DateFormatter` does not reliably parse with `.withFractionalSeconds`. The fractional part is stripped via regex before parsing — sub-second precision is useless for a reset countdown anyway.
+Gotcha: `resets_at` carries variable sub-second precision (6 fractional digits observed). Parsing first tries `ISO8601DateFormatter` with `.withFractionalSeconds`; on failure it falls back to stripping the fractional part via a regex scoped to `hh:mm:ss.xxxxxx` (not a blind replace across the whole string) and reparsing — sub-second precision is useless for a reset countdown anyway.
 
 The `is_active` field (per entry in the `limits` array) is deliberately **not** used to gate the display: the API's percentage is always shown as-is.
 
@@ -56,9 +56,16 @@ The `is_active` field (per entry in the `limits` array) is deliberately **not** 
 - Depends on the OAuth token Claude Code stores in the Keychain — if Claude Code has never run on this machine, or the token expired without a recent `claude` invocation refreshing it, the app shows an explicit error rather than guessing a value.
 - No automatic OAuth refresh: relies on Claude Code refreshing the Keychain entry during normal use.
 - Polling capped at every 5 minutes with exponential backoff on 429, to avoid self-inflicted rate-limiting against the API itself.
+- `KeychainCredentials.read()` still shells out to `/usr/bin/security` rather than calling the native `SecItemCopyMatching` API: tried and reverted (see UX below) — the native call hangs indefinitely from an unsigned dev build against this specific Keychain item.
+
+## Liquid Glass UX (macOS 26+)
+
+`UsagePopoverView` uses the Liquid Glass design language (WWDC 2025): each window (5h, 7d) is a `.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))` card, both grouped inside a `GlassEffectContainer` — required whenever multiple glass elements sit close together ("glass cannot sample other glass", otherwise rendering is inconsistent between cards). Buttons use `.buttonStyle(.glassProminent)` (Refresh) / `.buttonStyle(.glass)` (Quit). A severity color (green < 50%, orange 50-80%, red > 80%) highlights each card's percentage and progress bar.
+
+`glassBackgroundEffect` is deliberately not used for the panel background: the documentation found for it skews visionOS-specific (planes, volumes, ornaments), with an ambiguous macOS scope. `MenuBarExtra(.window)`'s system chrome already applies Liquid Glass automatically on macOS 26+.
 
 ## Stack & distribution
 
-- SwiftUI `MenuBarExtra` (macOS 14+ only, no iOS target).
+- SwiftUI `MenuBarExtra` (**macOS 26.0+ only**, raised from 14.0 — required for Liquid Glass, these APIs don't exist before; decision made without discussion, personal single-machine app already running macOS 27). No iOS target.
 - XcodeGen (`project.yml`) for project generation.
 - No App Sandbox: required to shell out to `/usr/bin/security` and read a Keychain item created by another application (Claude Code). Developer ID distribution planned, consistent with the rest of Vincent's macOS app fleet.

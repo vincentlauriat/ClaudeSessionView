@@ -8,12 +8,14 @@ struct UsagePopoverView: View {
             Text("Claude Session Usage")
                 .font(.headline)
 
-            windowSection(title: "Session (5h)", percent: viewModel.fiveHourPercent, resetsAt: viewModel.fiveHourResetsAt)
-            Divider()
-            windowSection(title: "Semaine (7 jours)", percent: viewModel.weeklyPercent, resetsAt: viewModel.weeklyResetsAt)
+            GlassEffectContainer(spacing: 12) {
+                VStack(spacing: 12) {
+                    windowCard(title: "Session (5h)", percent: viewModel.fiveHourPercent, resetsAt: viewModel.fiveHourResetsAt)
+                    windowCard(title: "Semaine (7 jours)", percent: viewModel.weeklyPercent, resetsAt: viewModel.weeklyResetsAt)
+                }
+            }
 
             if let errorState = viewModel.errorState {
-                Divider()
                 let hasKnownValues = viewModel.fiveHourPercent != nil || viewModel.weeklyPercent != nil
                 Text(errorMessage(errorState, hasKnownValues: hasKnownValues))
                     .font(.caption)
@@ -29,33 +31,42 @@ struct UsagePopoverView: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("Rafraîchir") { viewModel.refresh() }
-                    .font(.caption)
+                Button("Rafraîchir", systemImage: "arrow.clockwise") { viewModel.refresh() }
+                    .buttonStyle(.glassProminent)
+                    .controlSize(.small)
             }
 
             Text("Source : compte Anthropic (api.anthropic.com/api/oauth/usage) — la même donnée que Claude Desktop.")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
-            Button("Quitter") { NSApplication.shared.terminate(nil) }
-                .frame(maxWidth: .infinity, alignment: .leading)
+            Button("Quitter", systemImage: "power") { NSApplication.shared.terminate(nil) }
+                .buttonStyle(.glass)
+                .controlSize(.small)
         }
         .padding(16)
         .frame(width: 320)
     }
 
     @ViewBuilder
-    private func windowSection(title: String, percent: Double?, resetsAt: Date?) -> some View {
+    private func windowCard(title: String, percent: Double?, resetsAt: Date?) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
                 .font(.subheadline)
                 .fontWeight(.semibold)
 
             if let percent {
-                Text("\(Int(percent.rounded()))% consommé")
-                    .font(.title3)
-                    .fontWeight(.bold)
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text("\(Int(percent.rounded()))%")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundStyle(severityColor(percent))
+                    Text("consommé")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
                 ProgressView(value: min(max(percent, 0), 100) / 100)
+                    .tint(severityColor(percent))
                 if let resetsAt {
                     Text("Reset dans \(formatDuration(resetsAt.timeIntervalSinceNow)) (\(resetsAt.formatted(date: .omitted, time: .shortened)))")
                         .font(.caption)
@@ -66,6 +77,17 @@ struct UsagePopoverView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private func severityColor(_ percent: Double) -> Color {
+        switch percent {
+        case ..<50: return .green
+        case ..<80: return .orange
+        default: return .red
         }
     }
 
