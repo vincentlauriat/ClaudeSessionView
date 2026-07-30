@@ -11,7 +11,13 @@ xcuserdata/
 DerivedData/
 .build/
 build/
+build_run/
 *.dSYM
+
+# Release artifacts (motif sans slash initial : s'applique aussi dans release/)
+*.dmg
+*.zip
+release/
 
 .DS_Store
 

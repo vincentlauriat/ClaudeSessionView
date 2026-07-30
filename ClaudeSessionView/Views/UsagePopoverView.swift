@@ -2,6 +2,8 @@ import SwiftUI
 
 struct UsagePopoverView: View {
     @Environment(UsageViewModel.self) private var viewModel
+    @Environment(AppSettings.self) private var settings
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -10,14 +12,14 @@ struct UsagePopoverView: View {
 
             GlassEffectContainer(spacing: 12) {
                 VStack(spacing: 12) {
-                    windowCard(title: "Session (5h)", percent: viewModel.fiveHourPercent, resetsAt: viewModel.fiveHourResetsAt)
-                    windowCard(title: "Semaine (7 jours)", percent: viewModel.weeklyPercent, resetsAt: viewModel.weeklyResetsAt)
+                    windowCard(title: "Session (5h)", consumedPercent: viewModel.fiveHourPercent, resetsAt: viewModel.fiveHourResetsAt)
+                    windowCard(title: "Week (7 days)", consumedPercent: viewModel.weeklyPercent, resetsAt: viewModel.weeklyResetsAt)
                 }
             }
 
             if let errorState = viewModel.errorState {
                 let hasKnownValues = viewModel.fiveHourPercent != nil || viewModel.weeklyPercent != nil
-                Text(errorMessage(errorState, hasKnownValues: hasKnownValues))
+                errorText(errorState, hasKnownValues: hasKnownValues)
                     .font(.caption)
                     .foregroundStyle(.orange)
             }
@@ -26,54 +28,63 @@ struct UsagePopoverView: View {
 
             HStack {
                 if let lastUpdated = viewModel.lastUpdated {
-                    Text("Vérifié \(lastUpdated.formatted(date: .omitted, time: .standard))")
+                    Text("Checked \(lastUpdated.formatted(date: .omitted, time: .standard))")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("Rafraîchir", systemImage: "arrow.clockwise") { viewModel.refresh() }
+                Button("Refresh", systemImage: "arrow.clockwise") { viewModel.refresh() }
                     .buttonStyle(.glassProminent)
                     .controlSize(.small)
             }
 
-            Text("Source : compte Anthropic (api.anthropic.com/api/oauth/usage) — la même donnée que Claude Desktop.")
+            Text("Source: Anthropic account (api.anthropic.com/api/oauth/usage) — the same data as Claude Desktop.")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
-            Button("Quitter", systemImage: "power") { NSApplication.shared.terminate(nil) }
-                .buttonStyle(.glass)
-                .controlSize(.small)
+            HStack {
+                Button("Settings…", systemImage: "gearshape") { openSettings() }
+                    .buttonStyle(.glass)
+                    .controlSize(.small)
+                Spacer()
+                Button("Quit", systemImage: "power") { NSApplication.shared.terminate(nil) }
+                    .buttonStyle(.glass)
+                    .controlSize(.small)
+            }
         }
         .padding(16)
         .frame(width: 320)
     }
 
     @ViewBuilder
-    private func windowCard(title: String, percent: Double?, resetsAt: Date?) -> some View {
+    private func windowCard(title: LocalizedStringKey, consumedPercent: Double?, resetsAt: Date?) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
                 .font(.subheadline)
                 .fontWeight(.semibold)
 
-            if let percent {
+            if let consumedPercent {
+                let displayed = settings.showRemaining ? (100 - consumedPercent) : consumedPercent
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("\(Int(percent.rounded()))%")
+                    Text("\(Int(displayed.rounded()))%")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundStyle(severityColor(percent))
-                    Text("consommé")
+                        .foregroundStyle(severityColor(consumedPercent))
+                    Text(settings.showRemaining ? "remaining" : "consumed")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                ProgressView(value: min(max(percent, 0), 100) / 100)
-                    .tint(severityColor(percent))
+                ProgressView(value: min(max(displayed, 0), 100) / 100)
+                    .tint(severityColor(consumedPercent))
                 if let resetsAt {
-                    Text("Reset dans \(formatDuration(resetsAt.timeIntervalSinceNow)) (\(resetsAt.formatted(date: .omitted, time: .shortened)))")
+                    let duration = formatDuration(resetsAt.timeIntervalSinceNow)
+                    let time = resetsAt.formatted(date: .omitted, time: .shortened)
+                    Text("Resets in \(duration) (\(time))")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             } else {
-                Text("Données indisponibles")
+                Text("Data unavailable")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -83,26 +94,29 @@ struct UsagePopoverView: View {
         .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
-    private func severityColor(_ percent: Double) -> Color {
-        switch percent {
+    // La couleur reste indexée sur le pourcentage CONSOMMÉ (rouge = danger),
+    // que l'on affiche le consommé ou le restant.
+    private func severityColor(_ consumedPercent: Double) -> Color {
+        switch consumedPercent {
         case ..<50: return .green
         case ..<80: return .orange
         default: return .red
         }
     }
 
-    private func errorMessage(_ error: UsageFetchError, hasKnownValues: Bool) -> String {
+    @ViewBuilder
+    private func errorText(_ error: UsageFetchError, hasKnownValues: Bool) -> some View {
         switch error {
         case .noCredentials:
-            return "Identifiants Claude Code introuvables dans le Keychain."
+            Text("Claude Code credentials not found in the Keychain.")
         case .expiredCredentials:
-            return "Session expirée — exécute `claude` une fois pour te reconnecter."
+            Text("Session expired — run `claude` once to sign in again.")
         case .rateLimited:
-            return hasKnownValues ? "Limité temporairement par l'API — dernières valeurs connues affichées." : "Limité temporairement par l'API."
+            Text(hasKnownValues ? "Temporarily rate-limited by the API — showing last known values." : "Temporarily rate-limited by the API.")
         case .network:
-            return hasKnownValues ? "Erreur réseau — dernières valeurs connues affichées." : "Erreur réseau."
+            Text(hasKnownValues ? "Network error — showing last known values." : "Network error.")
         case .decodingFailed:
-            return "Réponse inattendue de l'API."
+            Text("Unexpected response from the API.")
         }
     }
 

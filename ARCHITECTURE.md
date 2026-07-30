@@ -24,11 +24,14 @@ Keychain macOS ("Claude Code-credentials")
 
 | Fichier | Rôle |
 |---|---|
-| `ClaudeSessionViewApp.swift` | `@main`, scène `MenuBarExtra`, label compact |
+| `ClaudeSessionViewApp.swift` | `@main`, scènes `MenuBarExtra` + `Settings`, label compact, injection locale/color-scheme |
+| `Models/AppSettings.swift` | Réglages utilisateur observables persistés dans `UserDefaults` ; lancement au démarrage adossé à `SMAppService` |
 | `Services/KeychainCredentials.swift` | Lecture du token OAuth stocké par Claude Code dans le Keychain macOS |
 | `Services/UsageAPIClient.swift` | Appel HTTPS authentifié vers l'API réelle Anthropic + décodage JSON (`RateLimitUsage`, `RateLimitWindow`, `UsageFetchError`) |
 | `ViewModels/UsageViewModel.swift` | État observable, timer de refresh (5 min), backoff exponentiel sur rate-limit (429) |
-| `Views/UsagePopoverView.swift` | UI détail (Liquid Glass) : cartes en verre par fenêtre, % réels colorés par sévérité, countdowns de reset, message d'erreur si applicable |
+| `Views/UsagePopoverView.swift` | UI détail (Liquid Glass) : cartes en verre par fenêtre, % colorés par sévérité, countdowns de reset, message d'erreur, boutons réglages/quitter |
+| `Views/SettingsView.swift` | Fenêtre d'options (`Form`) : affichage barre de menu, restant/consommé, lancement au démarrage, langue, thème |
+| `Localizable.xcstrings` | String Catalog, source `en` + `fr` + `zh-Hans` |
 
 ## L'endpoint réel
 
@@ -63,6 +66,20 @@ Le champ `is_active` (par entrée du tableau `limits`) n'est volontairement **pa
 `UsagePopoverView` utilise le design Liquid Glass (WWDC 2025) : chaque fenêtre (5h, 7j) est une carte `.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))`, les deux regroupées dans un `GlassEffectContainer` — requis dès que plusieurs éléments de verre sont visuellement proches ("le verre ne peut pas échantillonner du verre", sinon rendu incohérent entre les cartes). Boutons en `.buttonStyle(.glassProminent)` (Rafraîchir) / `.buttonStyle(.glass)` (Quitter). Couleur de sévérité (vert < 50 %, orange 50-80 %, rouge > 80 %) sur le % et la barre de progression de chaque carte.
 
 `glassBackgroundEffect` n'est volontairement pas utilisé pour le fond du panneau : sa documentation trouvée est orientée visionOS (plans, volumes, ornements), périmètre macOS ambigu. Le chrome système de `MenuBarExtra(.window)` applique déjà Liquid Glass automatiquement sur macOS 26+.
+
+## Réglages, localisation & thème
+
+La fenêtre d'options est une scène SwiftUI `Settings` standard (⌘, / ouverte depuis le popover via `@Environment(\.openSettings)`), donc elle fonctionne même si l'app est `LSUIElement` sans fenêtre principale. `AppSettings` est un objet `@Observable` injecté dans les deux scènes ; chaque réglage écrit dans `UserDefaults` dans son `didSet`. Cinq réglages :
+
+| Réglage | Effet |
+|---|---|
+| Affichage barre de menu | `.fiveHour` / `.sevenDay` / `.iconOnly` — quel pourcentage (ou juste l'icône) le label affiche |
+| Afficher le restant | Affiche `100 − consommé` au lieu du consommé, dans le label et le popover ; la couleur de sévérité reste indexée sur le *consommé* (rouge = danger) |
+| Lancement au démarrage | `SMAppService.mainApp.register()` / `.unregister()` ; le toggle reflète `SMAppService.mainApp.status`, resynchronisé à l'apparition de la fenêtre |
+| Langue | `.system` / français / anglais / chinois |
+| Thème | `.system` / clair / sombre |
+
+**La bascule à chaud de la langue et du thème** repose sur l'injection de `\.environment(\.locale, …)` et `.preferredColorScheme(…)` à la racine des deux scènes. SwiftUI résout `Text(LocalizedStringKey)` selon la locale de l'environnement et les localisations compilées du bundle : changer le picker met donc à jour l'UI sans relancer. À noter : `String(localized:locale:)` ne sélectionne **pas** une traduction via son argument `locale:` (ce paramètre ne sert qu'au formatage des interpolations) — donc toute string visible passe par `Text`, jamais par une `String` pré-formatée. Le label de la barre de menu est volontairement purement numérique (`"45%"`) et neutre linguistiquement. Les localisations supportées sont déclarées via `CFBundleLocalizations` (en/fr/zh-Hans) pour que l'override runtime les trouve toujours.
 
 ## Stack & distribution
 

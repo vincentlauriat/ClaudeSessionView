@@ -45,3 +45,8 @@ targets:
         LSMinimumSystemVersion: "26.0"
         LSUIElement: true
         NSHumanReadableCopyright: ""
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations:
+          - en
+          - fr
+          - zh-Hans

@@ -24,11 +24,14 @@ macOS Keychain ("Claude Code-credentials")
 
 | File | Responsibility |
 |---|---|
-| `ClaudeSessionViewApp.swift` | `@main`, `MenuBarExtra` scene, compact label |
+| `ClaudeSessionViewApp.swift` | `@main`, `MenuBarExtra` + `Settings` scenes, compact label, injects locale/color-scheme |
+| `Models/AppSettings.swift` | Observable user settings persisted in `UserDefaults`; launch-at-login backed by `SMAppService` |
 | `Services/KeychainCredentials.swift` | Reads the OAuth token Claude Code stores in the macOS Keychain |
 | `Services/UsageAPIClient.swift` | Authenticated HTTPS call to Anthropic's real usage API + JSON decoding (`RateLimitUsage`, `RateLimitWindow`, `UsageFetchError`) |
 | `ViewModels/UsageViewModel.swift` | Observable state, 5-minute refresh timer, exponential backoff on rate-limit (429) |
-| `Views/UsagePopoverView.swift` | Detail UI (Liquid Glass): per-window glass cards, severity-colored real percentages, reset countdowns, error message when applicable |
+| `Views/UsagePopoverView.swift` | Detail UI (Liquid Glass): per-window glass cards, severity-colored percentages, reset countdowns, error message, settings/quit buttons |
+| `Views/SettingsView.swift` | Options window (`Form`): menu-bar display, remaining/consumed, launch at login, language, theme |
+| `Localizable.xcstrings` | String Catalog, source `en` + `fr` + `zh-Hans` |
 
 ## The real endpoint
 
@@ -63,6 +66,20 @@ The `is_active` field (per entry in the `limits` array) is deliberately **not** 
 `UsagePopoverView` uses the Liquid Glass design language (WWDC 2025): each window (5h, 7d) is a `.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))` card, both grouped inside a `GlassEffectContainer` — required whenever multiple glass elements sit close together ("glass cannot sample other glass", otherwise rendering is inconsistent between cards). Buttons use `.buttonStyle(.glassProminent)` (Refresh) / `.buttonStyle(.glass)` (Quit). A severity color (green < 50%, orange 50-80%, red > 80%) highlights each card's percentage and progress bar.
 
 `glassBackgroundEffect` is deliberately not used for the panel background: the documentation found for it skews visionOS-specific (planes, volumes, ornaments), with an ambiguous macOS scope. `MenuBarExtra(.window)`'s system chrome already applies Liquid Glass automatically on macOS 26+.
+
+## Settings, localization & theming
+
+The options window is a standard SwiftUI `Settings` scene (⌘, / opened from the popover via `@Environment(\.openSettings)`), so it works even though the app is `LSUIElement` with no main window. `AppSettings` is an `@Observable` object injected into both scenes; each setting writes through to `UserDefaults` in its `didSet`. Five settings:
+
+| Setting | Effect |
+|---|---|
+| Menu bar display | `.fiveHour` / `.sevenDay` / `.iconOnly` — which percentage (or just the icon) the label shows |
+| Show remaining | Displays `100 − consumed` instead of consumed, in both the label and the popover; severity color stays keyed to *consumed* (red = danger) |
+| Launch at login | `SMAppService.mainApp.register()` / `.unregister()`; the toggle mirrors `SMAppService.mainApp.status`, re-synced on window appear |
+| Language | `.system` / French / English / Chinese |
+| Theme | `.system` / light / dark |
+
+**Live language & theme switching** relies on injecting `\.environment(\.locale, …)` and `.preferredColorScheme(…)` at the root of both scenes. SwiftUI resolves `Text(LocalizedStringKey)` against the environment locale and the bundle's compiled localizations, so switching the picker updates the UI without relaunching. Note: `String(localized:locale:)` does **not** select a translation by its `locale:` argument (that parameter only formats interpolations), so every user-visible string goes through `Text`, never through a pre-formatted `String`. The menu-bar label is intentionally numeric-only (`"45%"`) and language-neutral. Supported localizations are declared via `CFBundleLocalizations` (en/fr/zh-Hans) so the runtime override always finds them.
 
 ## Stack & distribution
 
