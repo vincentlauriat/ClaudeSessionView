@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClaudeSessionView — see your real Anthropic usage in the macOS menu bar</title>
+<meta name="description" content="A native macOS menu bar app showing your real Anthropic account usage: percentage consumed of the 5-hour session window and the 7-day weekly window, with exact reset countdowns. Free, open source, unofficial.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://vincentlauriat.github.io/ClaudeSessionView/">
+<meta property="og:title" content="ClaudeSessionView — see your real Anthropic usage in the macOS menu bar">
+<meta property="og:description" content="A native macOS menu bar app showing your real Anthropic account usage: percentage consumed of the 5-hour session window and the 7-day weekly window, with exact reset countdowns. Free, open source, unofficial.">
+<style>
+  :root {
+    --bg: #16130f;
+    --bg-card: #221d18;
+    --text: #f0eae4;
+    --muted: #a8998c;
+    --accent: #d97757;
+    --border: #352d26;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+  header { text-align: center; padding: 72px 0 40px; }
+  h1 { font-size: 2.6rem; margin: 24px 0 8px; letter-spacing: -.02em; }
+  .tagline { font-size: 1.25rem; color: var(--muted); max-width: 640px; margin: 0 auto; }
+  .buttons { margin: 32px 0 8px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 13px 26px; border-radius: 12px;
+    font-weight: 600; text-decoration: none; font-size: 1.02rem;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary { background: var(--accent); color: #1a120d; box-shadow: 0 6px 24px rgba(217,119,87,.4); }
+  .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+  .fineprint { color: var(--muted); font-size: .88rem; }
+
+  .menubar {
+    max-width: 620px; margin: 48px auto 0;
+    background: linear-gradient(180deg, #2a231d, #1d1813);
+    border: 1px solid var(--border); border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 22px; padding: 9px 18px; font-size: .9rem; color: var(--muted);
+  }
+  .menubar .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    color: var(--text); font-weight: 600;
+    background: rgba(217,119,87,.14); border: 1px solid rgba(217,119,87,.35);
+    border-radius: 999px; padding: 3px 11px 3px 8px;
+  }
+  .menubar .ring {
+    width: 13px; height: 13px; border-radius: 50%;
+    background: conic-gradient(var(--accent) 0 47%, #4a3d34 47% 100%);
+  }
+  .menubar .sep { opacity: .55; }
+  .mockcaption { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 12px; }
+
+  section { padding: 56px 0 8px; }
+  h2 { font-size: 1.7rem; margin-bottom: 20px; letter-spacing: -.01em; }
+  h2 .em { color: var(--accent); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px 22px;
+  }
+  .card h3 { font-size: 1.05rem; margin-bottom: 6px; }
+  .card p { color: var(--muted); font-size: .95rem; }
+  .steps { counter-reset: step; }
+  .step { display: flex; gap: 16px; margin-bottom: 22px; }
+  .step .n {
+    counter-increment: step; flex: 0 0 36px; height: 36px; border-radius: 50%;
+    background: var(--accent); color: #1a120d; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step .n::before { content: counter(step); }
+  .step p { color: var(--muted); }
+  .step strong { color: var(--text); }
+  .note {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px; padding: 16px 20px; margin: 20px 0;
+    color: var(--muted); font-size: .95rem;
+  }
+  .note strong { color: var(--text); }
+  code, pre {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+  }
+  code { padding: 2px 7px; font-size: .9em; overflow-wrap: anywhere; }
+  pre { padding: 18px 20px; overflow-x: auto; margin: 16px 0; }
+  pre code { background: none; border: none; padding: 0; }
+  a { color: var(--accent); }
+  footer { text-align: center; padding: 64px 0 40px; color: var(--muted); font-size: .9rem; }
+  footer a { color: var(--muted); }
+  @media (max-width: 520px) {
+    h1 { font-size: 2rem; }
+    .tagline { font-size: 1.1rem; }
+    .menubar { gap: 12px; padding: 8px 12px; font-size: .8rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <h1>ClaudeSessionView</h1>
+  <p class="tagline">A macOS menu bar app that shows your <strong style="color:var(--accent)">real Anthropic account usage</strong> —
+  how much of the 5-hour session window and the 7-day weekly window you have burned, and exactly when each one resets.</p>
+  <div class="buttons">
+    <a class="btn btn-primary" href="https://github.com/vincentlauriat/ClaudeSessionView/releases">View releases</a>
+    <a class="btn btn-secondary" href="https://github.com/vincentlauriat/ClaudeSessionView">View on GitHub</a>
+  </div>
+  <p class="fineprint">Free &amp; open source (MIT) · macOS 26+ · signed &amp; notarized DMG · requires Claude Code</p>
+
+  <div class="menubar" role="img" aria-label="Illustration of the macOS menu bar showing the app displaying 47 percent of the 5-hour session window consumed">
+    <span class="pill"><span class="ring"></span>47%</span>
+    <span class="sep">Wi-Fi</span>
+    <span class="sep">100%</span>
+    <span class="sep">Tue 14:32</span>
+  </div>
+  <p class="mockcaption">Illustration — the 5-hour session window, live in the menu bar.</p>
+</header>
+
+<section class="wrap">
+  <h2>Features</h2>
+  <div class="grid">
+    <div class="card"><h3>📊 Real usage, not an estimate</h3><p>The 5-hour session and 7-day window percentages come straight from your Anthropic account — the same numbers Claude Desktop shows, never a local reconstruction from your logs.</p></div>
+    <div class="card"><h3>⏱️ Exact reset countdown</h3><p>Time remaining until each window resets, plus the clock time it resets at. No more guessing whether it is worth starting one more task.</p></div>
+    <div class="card"><h3>🎛️ Pick what the menu bar shows</h3><p>Display the 5-hour percentage, the 7-day percentage, or just the icon. The full detail always stays one click away in the popover.</p></div>
+    <div class="card"><h3>🔁 Remaining or consumed</h3><p>Flip every percentage between “remaining” and “consumed” to match how you think. The severity color stays keyed to consumption, so red always means danger.</p></div>
+    <div class="card"><h3>🌍 Three languages, live</h3><p>English, French and Chinese, plus System / Light / Dark themes — all switchable on the spot, no relaunch. Liquid Glass UI, native to macOS 26.</p></div>
+    <div class="card"><h3>🚦 Honest error states</h3><p>If the credentials are missing or expired, or the API rate-limits, the app says so explicitly and keeps the last known values on screen instead of inventing a number.</p></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>How it reads <span class="em">real data</span></h2>
+  <div class="steps">
+    <div class="step"><span class="n"></span><p><strong>It reuses the token Claude Code already stored.</strong> When you sign in to Claude Code, it saves an OAuth token in the macOS Keychain. ClaudeSessionView reads that entry — it never asks you for credentials and never stores any of its own.</p></div>
+    <div class="step"><span class="n"></span><p><strong>It asks Anthropic directly.</strong> With that token it calls <code>GET https://api.anthropic.com/api/oauth/usage</code>, the endpoint behind the usage figures Claude Code and Claude Desktop show you. That is why the numbers match instead of approximating them.</p></div>
+    <div class="step"><span class="n"></span><p><strong>Read-only, and it stays on your Mac.</strong> Nothing is written back, nothing is stored, and no data goes anywhere except to Anthropic's own API. Polling runs every 5 minutes, with exponential backoff if the API rate-limits.</p></div>
+  </div>
+  <div class="note">
+    <strong>Two deliberate limits.</strong> Claude Code must have been signed in at least once on this Mac, otherwise there is no token to read. And the app never refreshes that token itself — Claude Code does that during normal use, so if it has been idle for a long while, run <code>claude</code> once and the app picks the refreshed token back up.
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>Install</h2>
+  <p>No release has been published yet — the signed &amp; notarized DMG will land on the
+  <a href="https://github.com/vincentlauriat/ClaudeSessionView/releases">Releases page</a> when it is ready. Until then, build it from source:</p>
+  <pre><code>brew install xcodegen        # if you don't have it
+git clone https://github.com/vincentlauriat/ClaudeSessionView.git
+cd ClaudeSessionView
+xcodegen generate
+xcodebuild -scheme ClaudeSessionView -configuration Debug CODE_SIGNING_ALLOWED=NO build
+open build/Debug/ClaudeSessionView.app</code></pre>
+  <p>The app lives in the menu bar and has no Dock icon. It needs <strong>macOS 26 or later</strong> (the UI relies on Liquid Glass APIs that do not exist before that) and <strong>Claude Code signed in at least once</strong> on the same machine. Architecture notes are in
+  <a href="https://github.com/vincentlauriat/ClaudeSessionView/blob/main/ARCHITECTURE_EN.md">ARCHITECTURE_EN.md</a>.</p>
+</section>
+
+<footer>
+  <p>MIT © Vincent Lauriat · <a href="https://github.com/vincentlauriat/ClaudeSessionView">github.com/vincentlauriat/ClaudeSessionView</a> · <a href="https://vincentlauriat.github.io/">more apps</a></p>
+  <p>Unofficial and independent — not affiliated with, endorsed by, or supported by Anthropic. “Claude” is a trademark of Anthropic.</p>
+</footer>
+
+</body>
+</html>
