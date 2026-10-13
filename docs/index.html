@@ -1,174 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="--accent:#d97757;--on-accent:#141414;--accent-ink:#b34b29">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ClaudeSessionView — see your real Anthropic usage in the macOS menu bar</title>
 <meta name="description" content="A native macOS menu bar app showing your real Anthropic account usage: percentage consumed of the 5-hour session window and the 7-day weekly window, with exact reset countdowns. Free, open source, unofficial.">
+<meta name="theme-color" content="#eff1f2">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://vincentlauriat.github.io/ClaudeSessionView/">
 <meta property="og:title" content="ClaudeSessionView — see your real Anthropic usage in the macOS menu bar">
 <meta property="og:description" content="A native macOS menu bar app showing your real Anthropic account usage: percentage consumed of the 5-hour session window and the 7-day weekly window, with exact reset countdowns. Free, open source, unofficial.">
-<style>
-  :root {
-    --bg: #16130f;
-    --bg-card: #221d18;
-    --text: #f0eae4;
-    --muted: #a8998c;
-    --accent: #d97757;
-    --border: #352d26;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-    line-height: 1.6;
-  }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
-  header { text-align: center; padding: 72px 0 40px; }
-  h1 { font-size: 2.6rem; margin: 24px 0 8px; letter-spacing: -.02em; }
-  .tagline { font-size: 1.25rem; color: var(--muted); max-width: 640px; margin: 0 auto; }
-  .buttons { margin: 32px 0 8px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-  .btn {
-    display: inline-block; padding: 13px 26px; border-radius: 12px;
-    font-weight: 600; text-decoration: none; font-size: 1.02rem;
-    transition: transform .12s ease, box-shadow .12s ease;
-  }
-  .btn:hover { transform: translateY(-2px); }
-  .btn-primary { background: var(--accent); color: #1a120d; box-shadow: 0 6px 24px rgba(217,119,87,.4); }
-  .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
-  .fineprint { color: var(--muted); font-size: .88rem; }
+<meta property="og:url" content="https://vincentlauriat.github.io/ClaudeSessionView/">
 
-  .menubar {
-    max-width: 620px; margin: 48px auto 0;
-    background: linear-gradient(180deg, #2a231d, #1d1813);
-    border: 1px solid var(--border); border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.5);
-    display: flex; align-items: center; justify-content: flex-end;
-    gap: 22px; padding: 9px 18px; font-size: .9rem; color: var(--muted);
-  }
-  .menubar .pill {
-    display: inline-flex; align-items: center; gap: 7px;
-    color: var(--text); font-weight: 600;
-    background: rgba(217,119,87,.14); border: 1px solid rgba(217,119,87,.35);
-    border-radius: 999px; padding: 3px 11px 3px 8px;
-  }
-  .menubar .ring {
-    width: 13px; height: 13px; border-radius: 50%;
-    background: conic-gradient(var(--accent) 0 47%, #4a3d34 47% 100%);
-  }
-  .menubar .sep { opacity: .55; }
-  .mockcaption { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 12px; }
+<meta name="twitter:card" content="summary_large_image">
 
-  section { padding: 56px 0 8px; }
-  h2 { font-size: 1.7rem; margin-bottom: 20px; letter-spacing: -.01em; }
-  h2 .em { color: var(--accent); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-  .card {
-    background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: 14px; padding: 20px 22px;
-  }
-  .card h3 { font-size: 1.05rem; margin-bottom: 6px; }
-  .card p { color: var(--muted); font-size: .95rem; }
-  .steps { counter-reset: step; }
-  .step { display: flex; gap: 16px; margin-bottom: 22px; }
-  .step .n {
-    counter-increment: step; flex: 0 0 36px; height: 36px; border-radius: 50%;
-    background: var(--accent); color: #1a120d; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .step .n::before { content: counter(step); }
-  .step p { color: var(--muted); }
-  .step strong { color: var(--text); }
-  .note {
-    background: var(--bg-card); border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
-    border-radius: 10px; padding: 16px 20px; margin: 20px 0;
-    color: var(--muted); font-size: .95rem;
-  }
-  .note strong { color: var(--text); }
-  code, pre {
-    font-family: "SF Mono", ui-monospace, Menlo, monospace;
-    background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
-  }
-  code { padding: 2px 7px; font-size: .9em; overflow-wrap: anywhere; }
-  pre { padding: 18px 20px; overflow-x: auto; margin: 16px 0; }
-  pre code { background: none; border: none; padding: 0; }
-  a { color: var(--accent); }
-  footer { text-align: center; padding: 64px 0 40px; color: var(--muted); font-size: .9rem; }
-  footer a { color: var(--muted); }
-  @media (max-width: 520px) {
-    h1 { font-size: 2rem; }
-    .tagline { font-size: 1.1rem; }
-    .menubar { gap: 12px; padding: 8px 12px; font-size: .8rem; }
-  }
-</style>
+<link rel="preload" href="/assets/schibsted.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/monograph/v1/monograph.css">
+
 </head>
 <body>
-
-<header class="wrap">
-  <h1>ClaudeSessionView</h1>
-  <p class="tagline">A macOS menu bar app that shows your <strong style="color:var(--accent)">real Anthropic account usage</strong> —
-  how much of the 5-hour session window and the 7-day weekly window you have burned, and exactly when each one resets.</p>
-  <div class="buttons">
-    <a class="btn btn-primary" href="https://github.com/vincentlauriat/ClaudeSessionView/releases">View releases</a>
-    <a class="btn btn-secondary" href="https://github.com/vincentlauriat/ClaudeSessionView">View on GitHub</a>
-  </div>
-  <p class="fineprint">Free &amp; open source (MIT) · macOS 26+ · signed &amp; notarized DMG · requires Claude Code</p>
-
-  <div class="menubar" role="img" aria-label="Illustration of the macOS menu bar showing the app displaying 47 percent of the 5-hour session window consumed">
-    <span class="pill"><span class="ring"></span>47%</span>
-    <span class="sep">Wi-Fi</span>
-    <span class="sep">100%</span>
-    <span class="sep">Tue 14:32</span>
-  </div>
-  <p class="mockcaption">Illustration — the 5-hour session window, live in the menu bar.</p>
-</header>
-
-<section class="wrap">
-  <h2>Features</h2>
-  <div class="grid">
-    <div class="card"><h3>📊 Real usage, not an estimate</h3><p>The 5-hour session and 7-day window percentages come straight from your Anthropic account — the same numbers Claude Desktop shows, never a local reconstruction from your logs.</p></div>
-    <div class="card"><h3>⏱️ Exact reset countdown</h3><p>Time remaining until each window resets, plus the clock time it resets at. No more guessing whether it is worth starting one more task.</p></div>
-    <div class="card"><h3>🎛️ Pick what the menu bar shows</h3><p>Display the 5-hour percentage, the 7-day percentage, or just the icon. The full detail always stays one click away in the popover.</p></div>
-    <div class="card"><h3>🔁 Remaining or consumed</h3><p>Flip every percentage between “remaining” and “consumed” to match how you think. The severity color stays keyed to consumption, so red always means danger.</p></div>
-    <div class="card"><h3>🌍 Three languages, live</h3><p>English, French and Chinese, plus System / Light / Dark themes — all switchable on the spot, no relaunch. Liquid Glass UI, native to macOS 26.</p></div>
-    <div class="card"><h3>🚀 Launch at login</h3><p>Register the app with your system login items in one toggle, via <code>SMAppService</code> — no helper to install, no Dock icon, nothing left behind when you turn it off.</p></div>
-    <div class="card"><h3>🚦 Honest error states</h3><p>If the credentials are missing or expired, or the API rate-limits, the app says so explicitly and keeps the last known values on screen instead of inventing a number.</p></div>
-  </div>
-</section>
-
-<section class="wrap">
-  <h2>How it reads <span class="em">real data</span></h2>
-  <div class="steps">
-    <div class="step"><span class="n"></span><p><strong>It reuses the token Claude Code already stored.</strong> When you sign in to Claude Code, it saves an OAuth token in the macOS Keychain. ClaudeSessionView reads that entry — it never asks you for credentials and never stores any of its own.</p></div>
-    <div class="step"><span class="n"></span><p><strong>It asks Anthropic directly.</strong> With that token it calls <code>GET https://api.anthropic.com/api/oauth/usage</code>, the endpoint behind the usage figures Claude Code and Claude Desktop show you. That is why the numbers match instead of approximating them.</p></div>
-    <div class="step"><span class="n"></span><p><strong>Read-only, and it stays on your Mac.</strong> Nothing is written back, nothing is stored, and no data goes anywhere except to Anthropic's own API. Polling runs every 5 minutes, with exponential backoff if the API rate-limits.</p></div>
-  </div>
-  <div class="note">
-    <strong>Two deliberate limits.</strong> Claude Code must have been signed in at least once on this Mac, otherwise there is no token to read. And the app never refreshes that token itself — Claude Code does that during normal use, so if it has been idle for a long while, run <code>claude</code> once and the app picks the refreshed token back up.
-  </div>
-</section>
-
-<section class="wrap">
-  <h2>Install</h2>
-  <p>No release has been published yet — the signed &amp; notarized DMG will land on the
-  <a href="https://github.com/vincentlauriat/ClaudeSessionView/releases">Releases page</a> when it is ready. Until then, build it from source:</p>
-  <pre><code>brew install xcodegen        # if you don't have it
+<a class="skip" href="#content"><span class="en">Skip to content</span><span class="fr">Aller au contenu</span><span class="zh">跳至內容</span></a>
+<header class="running"><div class="wrap">
+<a class="back" href="https://vincentlauriat.github.io/#w06"><svg class="arw l" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg><span class="en">Vincent Lauriat</span><span class="fr">Vincent Lauriat</span><span class="zh">Vincent Lauriat</span></a>
+<span class="here"><span class="num">06</span> · ClaudeSessionView</span>
+<div class="langs" role="group" aria-label="Language / Langue / 語言"><button type="button" data-lang="en" aria-pressed="false">EN</button><button type="button" data-lang="fr" aria-pressed="false">FR</button><button type="button" data-lang="zh" aria-pressed="false">中文</button></div>
+<a class="gh" href="https://github.com/vincentlauriat/ClaudeSessionView">GitHub</a>
+</div></header>
+<main>
+<section class="title"><div class="wrap g12">
+<h1 class="nm long" style="--len:17"><span class="no" aria-label="Work no. 06">06</span><span>ClaudeSessionView</span></h1>
+<p class="role"><span class="en">A native macOS menu bar app</span><span class="fr">Une app native pour la barre de menus macOS</span><span class="zh">原生 macOS 選單列應用程式</span></p>
+<div class="t-left">
+<p class="thesis"><span class="en">See your real Anthropic usage in the macOS menu bar.</span><span class="fr">Votre usage Anthropic réel, dans la barre de menus macOS.</span><span class="zh">在 macOS 選單列看見你真實的 Anthropic 用量。</span></p>
+<p class='lede'><span class="en">A macOS menu bar app that shows your <b>real Anthropic account usage</b> — how much of the 5-hour session window and the 7-day weekly window you have burned, and exactly when each one resets.</span><span class="fr">Une app de barre de menus macOS qui affiche l'<b>usage réel de votre compte Anthropic</b> — la part déjà consommée de la fenêtre de session de 5 heures et de la fenêtre hebdomadaire de 7 jours, et le moment exact où chacune se réinitialise.</span><span class="zh">一款 macOS 選單列應用程式，顯示你<b>真實的 Anthropic 帳號用量</b>——5 小時工作階段視窗與 7 天每週視窗各已用掉多少，以及各自重置的確切時間。</span></p>
+<div class="acts"><a class="btn" href="https://github.com/vincentlauriat/ClaudeSessionView/releases"><span class="en">View releases</span><span class="fr">Voir les versions</span><span class="zh">檢視發行版本</span></a><a class="lnk" href="https://github.com/vincentlauriat/ClaudeSessionView"><span class="en">View on GitHub</span><span class="fr">Voir sur GitHub</span><span class="zh">在 GitHub 上檢視</span><svg class="arw" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a></div>
+<dl class="facts"><div><dt><span class="en">Requires</span><span class="fr">Configuration</span><span class="zh">系統需求</span></dt><dd><span class="en">macOS 26+ · requires Claude Code</span><span class="fr">macOS 26+ · nécessite Claude Code</span><span class="zh">macOS 26+ · 需要 Claude Code</span></dd></div><div><dt><span class="en">Distribution</span><span class="fr">Distribution</span><span class="zh">發行</span></dt><dd><span class="en">Signed &amp; notarized DMG</span><span class="fr">DMG signé et notarié</span><span class="zh">已簽章與公證的 DMG</span></dd></div><div><dt><span class="en">Licence</span><span class="fr">Licence</span><span class="zh">授權</span></dt><dd><span class="en">Free &amp; open source (MIT)</span><span class="fr">Gratuit et open source (MIT)</span><span class="zh">免費開源（MIT）</span></dd></div></dl>
+</div>
+<div class="t-right"></div>
+</div></section>
+<section class="opener" id="content"><div class="wrap"><div class="op-grid"><div class="numeral" aria-hidden="true">06</div><div class="op-text"><h2><span class="en">Features</span><span class="fr">Fonctionnalités</span><span class="zh">功能</span></h2></div></div></div></section>
+<section class="chapter"><div class="wrap"><ul class="specs"><li><h3><span class="en">Real usage, not an estimate</span><span class="fr">L'usage réel, pas une estimation</span><span class="zh">真實用量，而非估算</span></h3><div><p><span class="en">The 5-hour session and 7-day window percentages come straight from your Anthropic account — the same numbers Claude Desktop shows, never a local reconstruction from your logs.</span><span class="fr">Les pourcentages de la session de 5 heures et de la fenêtre de 7 jours viennent directement de votre compte Anthropic — les mêmes chiffres que ceux de Claude Desktop, jamais une reconstruction locale à partir de vos journaux.</span><span class="zh">5 小時工作階段與 7 天視窗的百分比直接來自你的 Anthropic 帳號——與 Claude Desktop 顯示的數字相同，絕非從你的記錄在本機重建。</span></p></div></li><li><h3><span class="en">Exact reset countdown</span><span class="fr">Compte à rebours exact</span><span class="zh">精確的重置倒數</span></h3><div><p><span class="en">Time remaining until each window resets, plus the clock time it resets at. No more guessing whether it is worth starting one more task.</span><span class="fr">Le temps restant avant la réinitialisation de chaque fenêtre, ainsi que l'heure à laquelle elle a lieu. Plus besoin de deviner s'il vaut la peine de lancer une tâche de plus.</span><span class="zh">每個視窗距離重置還剩多少時間，以及重置的時刻。不必再猜是否值得多開始一項任務。</span></p></div></li><li><h3><span class="en">Pick what the menu bar shows</span><span class="fr">Choisissez ce qu'affiche la barre de menus</span><span class="zh">自選選單列顯示內容</span></h3><div><p><span class="en">Display the 5-hour percentage, the 7-day percentage, or just the icon. The full detail always stays one click away in the popover.</span><span class="fr">Affichez le pourcentage sur 5 heures, celui sur 7 jours, ou seulement l'icône. Le détail complet reste toujours à un clic, dans le popover.</span><span class="zh">顯示 5 小時百分比、7 天百分比，或只顯示圖示。完整細節永遠在彈出視窗中，點一下就到。</span></p></div></li><li><h3><span class="en">Remaining or consumed</span><span class="fr">Restant ou consommé</span><span class="zh">剩餘或已用</span></h3><div><p><span class="en">Flip every percentage between “remaining” and “consumed” to match how you think. The severity color stays keyed to consumption, so red always means danger.</span><span class="fr">Basculez chaque pourcentage entre « restant » et « consommé », selon votre façon de penser. La couleur de gravité reste indexée sur la consommation : le rouge signale toujours un danger.</span><span class="zh">依你的思考習慣，把每個百分比在「剩餘」與「已用」之間切換。嚴重程度的顏色始終依用量而定，所以紅色永遠代表危險。</span></p></div></li><li><h3><span class="en">Three languages, live</span><span class="fr">Trois langues, en direct</span><span class="zh">三種語言，即時切換</span></h3><div><p><span class="en">English, French and Chinese, plus System / Light / Dark themes — all switchable on the spot, no relaunch. Liquid Glass UI, native to macOS 26.</span><span class="fr">Anglais, français et chinois, plus les thèmes Système / Clair / Sombre — tous modifiables sur-le-champ, sans relancer. Interface Liquid Glass, native de macOS 26.</span><span class="zh">英文、法文與中文，以及系統／淺色／深色主題——全部可當場切換，無須重新啟動。Liquid Glass 介面，macOS 26 原生。</span></p></div></li><li><h3><span class="en">Launch at login</span><span class="fr">Lancement à l'ouverture de session</span><span class="zh">登入時啟動</span></h3><div><p><span class="en">Register the app with your system login items in one toggle, via <code>SMAppService</code> — no helper to install, no Dock icon, nothing left behind when you turn it off.</span><span class="fr">Inscrivez l'app dans les éléments d'ouverture de session d'un seul interrupteur, via <code>SMAppService</code> — aucun utilitaire à installer, aucune icône dans le Dock, rien ne subsiste quand vous le désactivez.</span><span class="zh">透過 <code>SMAppService</code>，一個開關就把應用程式加入系統登入項目——不必安裝輔助程式、沒有 Dock 圖示，關閉後也不留任何痕跡。</span></p></div></li><li><h3><span class="en">Honest error states</span><span class="fr">Des erreurs affichées honnêtement</span><span class="zh">誠實的錯誤狀態</span></h3><div><p><span class="en">If the credentials are missing or expired, or the API rate-limits, the app says so explicitly and keeps the last known values on screen instead of inventing a number.</span><span class="fr">Si les identifiants sont absents ou expirés, ou si l'API limite les appels, l'app le dit explicitement et garde à l'écran les dernières valeurs connues au lieu d'inventer un chiffre.</span><span class="zh">若憑證遺失或過期，或 API 觸發速率限制，應用程式會明確告知，並在畫面上保留最後已知的數值，而不是編造數字。</span></p></div></li></ul></div></section>
+<section class="chapter" id="data"><div class="wrap g12"><div class="ch-head"><h2><span class="en">How it reads real data</span><span class="fr">Comment il lit les vraies données</span><span class="zh">它如何讀取真實資料</span></h2></div><div class="ch-body"><ol class="steps"><li><p><span class="en"><b>It reuses the token Claude Code already stored.</b> When you sign in to Claude Code, it saves an OAuth token in the macOS Keychain. ClaudeSessionView reads that entry — it never asks you for credentials and never stores any of its own.</span><span class="fr"><b>Il réutilise le jeton que Claude Code a déjà enregistré.</b> Quand vous vous connectez à Claude Code, celui-ci enregistre un jeton OAuth dans le trousseau macOS. ClaudeSessionView lit cette entrée — il ne vous demande jamais d'identifiants et n'en stocke jamais lui-même.</span><span class="zh"><b>它沿用 Claude Code 已儲存的權杖。</b>你登入 Claude Code 時，它會把 OAuth 權杖存進 macOS 鑰匙圈。ClaudeSessionView 讀取這個項目——從不向你索取憑證，也從不自行儲存任何憑證。</span></p></li><li><p><span class="en"><b>It asks Anthropic directly.</b> With that token it calls <code>GET https://api.anthropic.com/api/oauth/usage</code>, the endpoint behind the usage figures Claude Code and Claude Desktop show you. That is why the numbers match instead of approximating them.</span><span class="fr"><b>Il interroge directement Anthropic.</b> Avec ce jeton, il appelle <code>GET https://api.anthropic.com/api/oauth/usage</code>, l'endpoint derrière les chiffres d'usage qu'affichent Claude Code et Claude Desktop. C'est pourquoi les chiffres concordent au lieu d'en être une approximation.</span><span class="zh"><b>它直接詢問 Anthropic。</b>它用這個權杖呼叫 <code>GET https://api.anthropic.com/api/oauth/usage</code>，也就是 Claude Code 與 Claude Desktop 顯示用量數字背後的端點。所以數字是一致的，而非近似值。</span></p></li><li><p><span class="en"><b>Read-only, and it stays on your Mac.</b> Nothing is written back, nothing is stored, and no data goes anywhere except to Anthropic's own API. Polling runs every 5 minutes, with exponential backoff if the API rate-limits.</span><span class="fr"><b>En lecture seule, et tout reste sur votre Mac.</b> Rien n'est réécrit, rien n'est stocké, et aucune donnée ne part ailleurs que vers l'API d'Anthropic elle-même. L'interrogation a lieu toutes les 5 minutes, avec un backoff exponentiel si l'API limite les appels.</span><span class="zh"><b>唯讀，而且留在你的 Mac 上。</b>不回寫、不儲存，除了 Anthropic 自己的 API 之外，資料不會送往任何地方。每 5 分鐘輪詢一次，若 API 觸發速率限制則採指數退避。</span></p></li></ol><p><span class="en"><b>Two deliberate limits.</b> Claude Code must have been signed in at least once on this Mac, otherwise there is no token to read. And the app never refreshes that token itself — Claude Code does that during normal use, so if it has been idle for a long while, run <code>claude</code> once and the app picks the refreshed token back up.</span><span class="fr"><b>Deux limites délibérées.</b> Claude Code doit avoir été connecté au moins une fois sur ce Mac, sinon il n'y a aucun jeton à lire. Et l'app ne renouvelle jamais ce jeton elle-même — Claude Code s'en charge en usage normal ; s'il est resté inactif longtemps, lancez <code>claude</code> une fois et l'app récupère le jeton renouvelé.</span><span class="zh"><b>兩項刻意的限制。</b>這台 Mac 上必須至少登入過一次 Claude Code，否則沒有權杖可讀。而且應用程式從不自行更新權杖——Claude Code 會在正常使用時處理；若它已閒置很久，執行一次 <code>claude</code>，應用程式就會重新取得更新後的權杖。</span></p></div></div></section><section class="chapter" id="install"><div class="wrap g12"><div class="ch-head"><h2><span class="en">Install</span><span class="fr">Installation</span><span class="zh">安裝</span></h2><p><span class="en">No release has been published yet — the signed &amp; notarized DMG will land on the <a href="https://github.com/vincentlauriat/ClaudeSessionView/releases">Releases page</a> when it is ready. Until then, build it from source:</span><span class="fr">Aucune version n'a encore été publiée — le DMG signé et notarié arrivera sur la <a href="https://github.com/vincentlauriat/ClaudeSessionView/releases">page Releases</a> quand il sera prêt. D'ici là, compilez-le depuis les sources :</span><span class="zh">目前尚未發布任何版本——已簽章與公證的 DMG 準備好後會出現在 <a href="https://github.com/vincentlauriat/ClaudeSessionView/releases">Releases 頁面</a>。在那之前，請從原始碼建置：</span></p></div><div class="ch-body"><pre><code>brew install xcodegen        # if you don&#x27;t have it
 git clone https://github.com/vincentlauriat/ClaudeSessionView.git
 cd ClaudeSessionView
 xcodegen generate
 xcodebuild -scheme ClaudeSessionView -configuration Debug CODE_SIGNING_ALLOWED=NO build
-open build/Debug/ClaudeSessionView.app</code></pre>
-  <p>The app lives in the menu bar and has no Dock icon. It needs <strong>macOS 26 or later</strong> (the UI relies on Liquid Glass APIs that do not exist before that) and <strong>Claude Code signed in at least once</strong> on the same machine. Architecture notes are in
-  <a href="https://github.com/vincentlauriat/ClaudeSessionView/blob/main/ARCHITECTURE_EN.md">ARCHITECTURE_EN.md</a>.</p>
-</section>
-
-<footer>
-  <p>MIT © Vincent Lauriat · <a href="https://github.com/vincentlauriat/ClaudeSessionView">github.com/vincentlauriat/ClaudeSessionView</a> · <a href="https://vincentlauriat.github.io/">more apps</a></p>
-  <p>Unofficial and independent — not affiliated with, endorsed by, or supported by Anthropic. “Claude” is a trademark of Anthropic.</p>
-</footer>
-
+open build/Debug/ClaudeSessionView.app</code></pre><p><span class="en">The app lives in the menu bar and has no Dock icon. It needs <b>macOS 26 or later</b> (the UI relies on Liquid Glass APIs that do not exist before that) and <b>Claude Code signed in at least once</b> on the same machine. Architecture notes are in <a href="https://github.com/vincentlauriat/ClaudeSessionView/blob/main/ARCHITECTURE_EN.md">ARCHITECTURE_EN.md</a>.</span><span class="fr">L'app vit dans la barre de menus et n'a pas d'icône dans le Dock. Elle nécessite <b>macOS 26 ou ultérieur</b> (l'interface repose sur des API Liquid Glass qui n'existent pas avant) et <b>Claude Code connecté au moins une fois</b> sur la même machine. Les notes d'architecture sont dans <a href="https://github.com/vincentlauriat/ClaudeSessionView/blob/main/ARCHITECTURE_EN.md">ARCHITECTURE_EN.md</a>.</span><span class="zh">應用程式常駐於選單列，沒有 Dock 圖示。它需要 <b>macOS 26 或以上版本</b>（介面仰賴在此之前並不存在的 Liquid Glass API），且同一台機器上 <b>至少登入過一次 Claude Code</b>。架構說明請見 <a href="https://github.com/vincentlauriat/ClaudeSessionView/blob/main/ARCHITECTURE_EN.md">ARCHITECTURE_EN.md</a>。</span></p></div></div></section>
+<section class="close"><div class="wrap g12"><h2><span class="en">Real usage, not an estimate</span><span class="fr">L'usage réel, pas une estimation</span><span class="zh">真實用量，而非估算</span></h2><div class="c-r"><div class="acts"><a class="btn" href="https://github.com/vincentlauriat/ClaudeSessionView/releases"><span class="en">View releases</span><span class="fr">Voir les versions</span><span class="zh">檢視發行版本</span></a><a class="lnk" href="https://github.com/vincentlauriat/ClaudeSessionView"><span class="en">View on GitHub</span><span class="fr">Voir sur GitHub</span><span class="zh">在 GitHub 上檢視</span><svg class="arw" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a></div></div></div></section>
+</main>
+<footer class="colophon"><div class="wrap g12"><div class="c1"><h2>ClaudeSessionView</h2><p><span class="en">Work no.</span><span class="fr">Réalisation n°</span><span class="zh">作品編號</span> <span class="num">06</span> <span class="en">in the works of Vincent Lauriat</span><span class="fr">dans les réalisations de Vincent Lauriat</span><span class="zh">收錄於 Vincent Lauriat 作品集</span>.</p><p><a href="https://vincentlauriat.github.io/#w06"><span class="en">All works</span><span class="fr">Toutes les réalisations</span><span class="zh">全部作品</span></a></p></div><div class="c2"><h2><span class="en">Source</span><span class="fr">Source</span><span class="zh">原始碼</span></h2><p><a href="https://github.com/vincentlauriat/ClaudeSessionView">github.com/vincentlauriat/ClaudeSessionView</a></p><p><span class="en">MIT License</span><span class="fr">Licence MIT</span><span class="zh">MIT 授權</span> · © 2026 Vincent Lauriat</p><p><span class="en">Unofficial and independent — not affiliated with, endorsed by, or supported by Anthropic. “Claude” is a trademark of Anthropic.</span><span class="fr">Non officiel et indépendant — ni affilié à Anthropic, ni approuvé ni soutenu par Anthropic. « Claude » est une marque d'Anthropic.</span><span class="zh">非官方、獨立開發——與 Anthropic 無任何關聯，亦未獲其背書或支援。「Claude」是 Anthropic 的商標。</span></p></div><div class="c3"><h2><span class="en">About this page</span><span class="fr">À propos de cette page</span><span class="zh">關於本頁</span></h2><p><span class="en">Set in Schibsted Grotesk, on the grid of the book it belongs to.</span><span class="fr">Composée en Schibsted Grotesk, sur la grille du livre auquel elle appartient.</span><span class="zh">以 Schibsted Grotesk 排版，沿用其所屬作品集的網格。</span></p></div></div></footer>
+<script src="/assets/monograph/v1/monograph.js"></script>
 </body>
 </html>
