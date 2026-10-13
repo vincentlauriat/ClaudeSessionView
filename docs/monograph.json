@@ -1,0 +1,105 @@
+{
+  "name": "ClaudeSessionView",
+  "no": "06",
+  "repo": "vincentlauriat/ClaudeSessionView",
+  "url": "https://vincentlauriat.github.io/ClaudeSessionView/",
+  "accent": "#d97757",
+  "meta": {
+    "title": "ClaudeSessionView — see your real Anthropic usage in the macOS menu bar",
+    "description": "A native macOS menu bar app showing your real Anthropic account usage: percentage consumed of the 5-hour session window and the 7-day weekly window, with exact reset countdowns. Free, open source, unofficial."
+  },
+  "role": {"en": "A native macOS menu bar app",
+           "fr": "Une app native pour la barre de menus macOS",
+           "zh": "原生 macOS 選單列應用程式"},
+  "thesis": {"en": "See your real Anthropic usage in the macOS menu bar.",
+             "fr": "Votre usage Anthropic réel, dans la barre de menus macOS.",
+             "zh": "在 macOS 選單列看見你真實的 Anthropic 用量。"},
+  "lede": {"en": "A macOS menu bar app that shows your <b>real Anthropic account usage</b> — how much of the 5-hour session window and the 7-day weekly window you have burned, and exactly when each one resets.",
+           "fr": "Une app de barre de menus macOS qui affiche l'<b>usage réel de votre compte Anthropic</b> — la part déjà consommée de la fenêtre de session de 5 heures et de la fenêtre hebdomadaire de 7 jours, et le moment exact où chacune se réinitialise.",
+           "zh": "一款 macOS 選單列應用程式，顯示你<b>真實的 Anthropic 帳號用量</b>——5 小時工作階段視窗與 7 天每週視窗各已用掉多少，以及各自重置的確切時間。"},
+  "actions": [
+    {"primary": true, "href": "https://github.com/vincentlauriat/ClaudeSessionView/releases",
+     "label": {"en": "View releases", "fr": "Voir les versions", "zh": "檢視發行版本"}},
+    {"href": "https://github.com/vincentlauriat/ClaudeSessionView",
+     "label": {"en": "View on GitHub", "fr": "Voir sur GitHub", "zh": "在 GitHub 上檢視"}}
+  ],
+  "facts": [
+    {"k": {"en": "Requires", "fr": "Configuration", "zh": "系統需求"}, "v": {"en": "macOS 26+ · requires Claude Code", "fr": "macOS 26+ · nécessite Claude Code", "zh": "macOS 26+ · 需要 Claude Code"}},
+    {"k": {"en": "Distribution", "fr": "Distribution", "zh": "發行"}, "v": {"en": "Signed &amp; notarized DMG", "fr": "DMG signé et notarié", "zh": "已簽章與公證的 DMG"}},
+    {"k": {"en": "Licence", "fr": "Licence", "zh": "授權"}, "v": {"en": "Free &amp; open source (MIT)", "fr": "Gratuit et open source (MIT)", "zh": "免費開源（MIT）"}}
+  ],
+  "opener": {"h": {"en": "Features", "fr": "Fonctionnalités", "zh": "功能"}},
+  "features": [
+    {"h": {"en": "Real usage, not an estimate", "fr": "L'usage réel, pas une estimation", "zh": "真實用量，而非估算"},
+     "p": {"en": "The 5-hour session and 7-day window percentages come straight from your Anthropic account — the same numbers Claude Desktop shows, never a local reconstruction from your logs.",
+           "fr": "Les pourcentages de la session de 5 heures et de la fenêtre de 7 jours viennent directement de votre compte Anthropic — les mêmes chiffres que ceux de Claude Desktop, jamais une reconstruction locale à partir de vos journaux.",
+           "zh": "5 小時工作階段與 7 天視窗的百分比直接來自你的 Anthropic 帳號——與 Claude Desktop 顯示的數字相同，絕非從你的記錄在本機重建。"}},
+    {"h": {"en": "Exact reset countdown", "fr": "Compte à rebours exact", "zh": "精確的重置倒數"},
+     "p": {"en": "Time remaining until each window resets, plus the clock time it resets at. No more guessing whether it is worth starting one more task.",
+           "fr": "Le temps restant avant la réinitialisation de chaque fenêtre, ainsi que l'heure à laquelle elle a lieu. Plus besoin de deviner s'il vaut la peine de lancer une tâche de plus.",
+           "zh": "每個視窗距離重置還剩多少時間，以及重置的時刻。不必再猜是否值得多開始一項任務。"}},
+    {"h": {"en": "Pick what the menu bar shows", "fr": "Choisissez ce qu'affiche la barre de menus", "zh": "自選選單列顯示內容"},
+     "p": {"en": "Display the 5-hour percentage, the 7-day percentage, or just the icon. The full detail always stays one click away in the popover.",
+           "fr": "Affichez le pourcentage sur 5 heures, celui sur 7 jours, ou seulement l'icône. Le détail complet reste toujours à un clic, dans le popover.",
+           "zh": "顯示 5 小時百分比、7 天百分比，或只顯示圖示。完整細節永遠在彈出視窗中，點一下就到。"}},
+    {"h": {"en": "Remaining or consumed", "fr": "Restant ou consommé", "zh": "剩餘或已用"},
+     "p": {"en": "Flip every percentage between “remaining” and “consumed” to match how you think. The severity color stays keyed to consumption, so red always means danger.",
+           "fr": "Basculez chaque pourcentage entre « restant » et « consommé », selon votre façon de penser. La couleur de gravité reste indexée sur la consommation : le rouge signale toujours un danger.",
+           "zh": "依你的思考習慣，把每個百分比在「剩餘」與「已用」之間切換。嚴重程度的顏色始終依用量而定，所以紅色永遠代表危險。"}},
+    {"h": {"en": "Three languages, live", "fr": "Trois langues, en direct", "zh": "三種語言，即時切換"},
+     "p": {"en": "English, French and Chinese, plus System / Light / Dark themes — all switchable on the spot, no relaunch. Liquid Glass UI, native to macOS 26.",
+           "fr": "Anglais, français et chinois, plus les thèmes Système / Clair / Sombre — tous modifiables sur-le-champ, sans relancer. Interface Liquid Glass, native de macOS 26.",
+           "zh": "英文、法文與中文，以及系統／淺色／深色主題——全部可當場切換，無須重新啟動。Liquid Glass 介面，macOS 26 原生。"}},
+    {"h": {"en": "Launch at login", "fr": "Lancement à l'ouverture de session", "zh": "登入時啟動"},
+     "p": {"en": "Register the app with your system login items in one toggle, via <code>SMAppService</code> — no helper to install, no Dock icon, nothing left behind when you turn it off.",
+           "fr": "Inscrivez l'app dans les éléments d'ouverture de session d'un seul interrupteur, via <code>SMAppService</code> — aucun utilitaire à installer, aucune icône dans le Dock, rien ne subsiste quand vous le désactivez.",
+           "zh": "透過 <code>SMAppService</code>，一個開關就把應用程式加入系統登入項目——不必安裝輔助程式、沒有 Dock 圖示，關閉後也不留任何痕跡。"}},
+    {"h": {"en": "Honest error states", "fr": "Des erreurs affichées honnêtement", "zh": "誠實的錯誤狀態"},
+     "p": {"en": "If the credentials are missing or expired, or the API rate-limits, the app says so explicitly and keeps the last known values on screen instead of inventing a number.",
+           "fr": "Si les identifiants sont absents ou expirés, ou si l'API limite les appels, l'app le dit explicitement et garde à l'écran les dernières valeurs connues au lieu d'inventer un chiffre.",
+           "zh": "若憑證遺失或過期，或 API 觸發速率限制，應用程式會明確告知，並在畫面上保留最後已知的數值，而不是編造數字。"}}
+  ],
+  "chapters": [
+    {"id": "data",
+     "h": {"en": "How it reads real data", "fr": "Comment il lit les vraies données", "zh": "它如何讀取真實資料"},
+     "blocks": [
+       {"type": "steps", "items": [
+         {"en": "<b>It reuses the token Claude Code already stored.</b> When you sign in to Claude Code, it saves an OAuth token in the macOS Keychain. ClaudeSessionView reads that entry — it never asks you for credentials and never stores any of its own.",
+          "fr": "<b>Il réutilise le jeton que Claude Code a déjà enregistré.</b> Quand vous vous connectez à Claude Code, celui-ci enregistre un jeton OAuth dans le trousseau macOS. ClaudeSessionView lit cette entrée — il ne vous demande jamais d'identifiants et n'en stocke jamais lui-même.",
+          "zh": "<b>它沿用 Claude Code 已儲存的權杖。</b>你登入 Claude Code 時，它會把 OAuth 權杖存進 macOS 鑰匙圈。ClaudeSessionView 讀取這個項目——從不向你索取憑證，也從不自行儲存任何憑證。"},
+         {"en": "<b>It asks Anthropic directly.</b> With that token it calls <code>GET https://api.anthropic.com/api/oauth/usage</code>, the endpoint behind the usage figures Claude Code and Claude Desktop show you. That is why the numbers match instead of approximating them.",
+          "fr": "<b>Il interroge directement Anthropic.</b> Avec ce jeton, il appelle <code>GET https://api.anthropic.com/api/oauth/usage</code>, l'endpoint derrière les chiffres d'usage qu'affichent Claude Code et Claude Desktop. C'est pourquoi les chiffres concordent au lieu d'en être une approximation.",
+          "zh": "<b>它直接詢問 Anthropic。</b>它用這個權杖呼叫 <code>GET https://api.anthropic.com/api/oauth/usage</code>，也就是 Claude Code 與 Claude Desktop 顯示用量數字背後的端點。所以數字是一致的，而非近似值。"},
+         {"en": "<b>Read-only, and it stays on your Mac.</b> Nothing is written back, nothing is stored, and no data goes anywhere except to Anthropic's own API. Polling runs every 5 minutes, with exponential backoff if the API rate-limits.",
+          "fr": "<b>En lecture seule, et tout reste sur votre Mac.</b> Rien n'est réécrit, rien n'est stocké, et aucune donnée ne part ailleurs que vers l'API d'Anthropic elle-même. L'interrogation a lieu toutes les 5 minutes, avec un backoff exponentiel si l'API limite les appels.",
+          "zh": "<b>唯讀，而且留在你的 Mac 上。</b>不回寫、不儲存，除了 Anthropic 自己的 API 之外，資料不會送往任何地方。每 5 分鐘輪詢一次，若 API 觸發速率限制則採指數退避。"}
+       ]},
+       {"type": "p", "t": {
+         "en": "<b>Two deliberate limits.</b> Claude Code must have been signed in at least once on this Mac, otherwise there is no token to read. And the app never refreshes that token itself — Claude Code does that during normal use, so if it has been idle for a long while, run <code>claude</code> once and the app picks the refreshed token back up.",
+         "fr": "<b>Deux limites délibérées.</b> Claude Code doit avoir été connecté au moins une fois sur ce Mac, sinon il n'y a aucun jeton à lire. Et l'app ne renouvelle jamais ce jeton elle-même — Claude Code s'en charge en usage normal ; s'il est resté inactif longtemps, lancez <code>claude</code> une fois et l'app récupère le jeton renouvelé.",
+         "zh": "<b>兩項刻意的限制。</b>這台 Mac 上必須至少登入過一次 Claude Code，否則沒有權杖可讀。而且應用程式從不自行更新權杖——Claude Code 會在正常使用時處理；若它已閒置很久，執行一次 <code>claude</code>，應用程式就會重新取得更新後的權杖。"}}
+     ]},
+    {"id": "install",
+     "h": {"en": "Install", "fr": "Installation", "zh": "安裝"},
+     "p": {"en": "No release has been published yet — the signed &amp; notarized DMG will land on the <a href=\"https://github.com/vincentlauriat/ClaudeSessionView/releases\">Releases page</a> when it is ready. Until then, build it from source:",
+           "fr": "Aucune version n'a encore été publiée — le DMG signé et notarié arrivera sur la <a href=\"https://github.com/vincentlauriat/ClaudeSessionView/releases\">page Releases</a> quand il sera prêt. D'ici là, compilez-le depuis les sources :",
+           "zh": "目前尚未發布任何版本——已簽章與公證的 DMG 準備好後會出現在 <a href=\"https://github.com/vincentlauriat/ClaudeSessionView/releases\">Releases 頁面</a>。在那之前，請從原始碼建置："},
+     "blocks": [
+       {"type": "pre", "code": "brew install xcodegen        # if you don't have it\ngit clone https://github.com/vincentlauriat/ClaudeSessionView.git\ncd ClaudeSessionView\nxcodegen generate\nxcodebuild -scheme ClaudeSessionView -configuration Debug CODE_SIGNING_ALLOWED=NO build\nopen build/Debug/ClaudeSessionView.app"},
+       {"type": "p", "t": {
+         "en": "The app lives in the menu bar and has no Dock icon. It needs <b>macOS 26 or later</b> (the UI relies on Liquid Glass APIs that do not exist before that) and <b>Claude Code signed in at least once</b> on the same machine. Architecture notes are in <a href=\"https://github.com/vincentlauriat/ClaudeSessionView/blob/main/ARCHITECTURE_EN.md\">ARCHITECTURE_EN.md</a>.",
+         "fr": "L'app vit dans la barre de menus et n'a pas d'icône dans le Dock. Elle nécessite <b>macOS 26 ou ultérieur</b> (l'interface repose sur des API Liquid Glass qui n'existent pas avant) et <b>Claude Code connecté au moins une fois</b> sur la même machine. Les notes d'architecture sont dans <a href=\"https://github.com/vincentlauriat/ClaudeSessionView/blob/main/ARCHITECTURE_EN.md\">ARCHITECTURE_EN.md</a>.",
+         "zh": "應用程式常駐於選單列，沒有 Dock 圖示。它需要 <b>macOS 26 或以上版本</b>（介面仰賴在此之前並不存在的 Liquid Glass API），且同一台機器上 <b>至少登入過一次 Claude Code</b>。架構說明請見 <a href=\"https://github.com/vincentlauriat/ClaudeSessionView/blob/main/ARCHITECTURE_EN.md\">ARCHITECTURE_EN.md</a>。"}}
+     ]}
+  ],
+  "close": {"h": {"en": "Real usage, not an estimate", "fr": "L'usage réel, pas une estimation", "zh": "真實用量，而非估算"},
+            "actions": [
+              {"primary": true, "href": "https://github.com/vincentlauriat/ClaudeSessionView/releases", "label": {"en": "View releases", "fr": "Voir les versions", "zh": "檢視發行版本"}},
+              {"href": "https://github.com/vincentlauriat/ClaudeSessionView", "label": {"en": "View on GitHub", "fr": "Voir sur GitHub", "zh": "在 GitHub 上檢視"}}
+            ]},
+  "colophon": {"notes": [
+    {"en": "Unofficial and independent — not affiliated with, endorsed by, or supported by Anthropic. “Claude” is a trademark of Anthropic.",
+     "fr": "Non officiel et indépendant — ni affilié à Anthropic, ni approuvé ni soutenu par Anthropic. « Claude » est une marque d'Anthropic.",
+     "zh": "非官方、獨立開發——與 Anthropic 無任何關聯，亦未獲其背書或支援。「Claude」是 Anthropic 的商標。"}
+  ]}
+}
